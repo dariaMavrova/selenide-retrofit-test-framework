@@ -1,0 +1,29 @@
+# Version catalog: the single place where dependency versions are declared.
+# build.gradle refers to these entries as libs.<alias> (dashes become dots).
+
+[versions]
+junit = "6.0.0"
+selenide = "7.5.1"
+slf4j = "2.0.16"
+retrofit = "2.11.0"
+okhttp = "4.12.0"
+jackson = "2.18.2"
+assertj = "3.26.3"
+datafaker = "2.4.2"
+
+[libraries]
+# The BOM pins versions of all JUnit artifacts, so the entries below need no version.
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
+selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-converter-jackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+datafaker = { module = "net.datafaker:datafaker", version.ref = "datafaker" }

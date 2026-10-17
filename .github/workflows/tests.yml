@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.suite }} tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [api, ui]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      # ubuntu-latest ships with Google Chrome, which Selenide drives headless.
+      - name: Run ${{ matrix.suite }} tests
+        run: ./gradlew ${{ matrix.suite }}Test
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.suite }}-test-reports
+          path: |
+            build/reports/tests/
+            build/reports/selenide/
+          if-no-files-found: ignore
