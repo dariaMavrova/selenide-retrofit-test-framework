@@ -6,6 +6,7 @@ group = 'org.example'
 version = '1.0-SNAPSHOT'
 
 java {
+    // Gradle downloads/uses JDK 21 regardless of which JDK runs Gradle itself.
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
@@ -16,20 +17,45 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:6.0.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Framework code (src/main): clients, page objects, config, models.
+    implementation libs.selenide
+    implementation libs.retrofit
+    implementation libs.retrofit.converter.jackson
+    implementation libs.okhttp.logging
+    implementation libs.jackson.databind
+    implementation libs.jackson.jsr310
+    implementation libs.datafaker
 
-    testImplementation 'io.rest-assured:rest-assured:5.5.1'
-    testImplementation 'com.codeborne:selenide:7.5.1'
+    // Tests (src/test): JUnit is only needed to write and run tests.
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testImplementation libs.assertj
+    testRuntimeOnly libs.junit.platform.launcher
 
-    testRuntimeOnly 'org.slf4j:slf4j-simple:2.0.16'
+    // Logging backend: needed at runtime only, never referenced from code.
+    runtimeOnly libs.slf4j.simple
 }
 
-test {
+// Shared settings for every Test task (test, apiTest, uiTest).
+tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    // Forward -Dapi.url=..., -Dselenide.headless=false etc. to the test JVM.
+    systemProperties System.properties.findAll { k, v -> k.toString() ==~ /(api|ui|selenide)\..+/ }
     testLogging {
-        events "passed", "skipped", "failed"
-        exceptionFormat "full"
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+// Run a subset of tests by JUnit @Tag, e.g. ./gradlew apiTest
+['api', 'ui'].each { tag ->
+    tasks.register("${tag}Test", Test) {
+        description = "Runs tests tagged '${tag}'."
+        group = 'verification'
+        testClassesDirs = sourceSets.test.output.classesDirs
+        classpath = sourceSets.test.runtimeClasspath
+        useJUnitPlatform {
+            includeTags tag
+        }
     }
 }
