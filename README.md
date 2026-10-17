@@ -1,6 +1,6 @@
 # Test Automation Framework — Selenide + Retrofit
 
-![Tests](https://github.com/dariaMavrova/my-project/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/dariaMavrova/selenide-retrofit-test-framework/actions/workflows/tests.yml/badge.svg)
 
 A Java test automation framework for **UI** and **API** testing of real public applications,
 with **50+ automated tests** running in GitHub Actions.
