@@ -1,6 +1,7 @@
 package org.example.ui.herokuapp;
 
-import org.example.config.Config;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.example.ui.BaseUiTest;
 import org.example.ui.pages.herokuapp.LoginPage;
 import org.example.ui.pages.herokuapp.SecureAreaPage;
@@ -14,15 +15,13 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.WebDriverConditions.urlContaining;
 import static com.codeborne.selenide.Selenide.webdriver;
 
+@Epic("The Internet (Herokuapp)")
+@Feature("Login")
+@DisplayName("Herokuapp UI: login")
 class HerokuappLoginTest extends BaseUiTest {
 
     private static final String VALID_USER = "tomsmith";
     private static final String VALID_PASSWORD = "SuperSecretPassword!";
-
-    @Override
-    protected String baseUrl() {
-        return Config.herokuappUrl();
-    }
 
     @Test
     @DisplayName("Valid credentials open the secure area")

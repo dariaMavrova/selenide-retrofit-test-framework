@@ -9,14 +9,6 @@ public final class Config {
     private Config() {
     }
 
-    public static String reqresUrl() {
-        return get("api.reqres.url", "https://reqres.in/api/");
-    }
-
-    public static String reqresApiKey() {
-        return get("api.reqres.key", "reqres-free-v1");
-    }
-
     public static String bookerUrl() {
         return get("api.booker.url", "https://restful-booker.herokuapp.com/");
     }

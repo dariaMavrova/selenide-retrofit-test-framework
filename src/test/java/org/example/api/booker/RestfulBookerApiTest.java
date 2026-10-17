@@ -1,5 +1,7 @@
 package org.example.api.booker;
 
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.example.api.ApiClients;
 import org.example.api.booker.model.AuthRequest;
 import org.example.api.booker.model.AuthResponse;
@@ -24,16 +26,24 @@ import static org.example.api.booker.BookingFactory.randomBooking;
 import static org.example.api.booker.RestfulBookerApi.tokenCookie;
 
 @Tag("api")
+@Epic("Restful-booker")
+@Feature("Bookings API")
 @DisplayName("Restful-booker API")
 class RestfulBookerApiTest {
 
-    private static final RestfulBookerApi api = ApiClients.restfulBooker();
-    private static String token;
+    private final RestfulBookerApi api = ApiClients.restfulBooker();
 
     @BeforeAll
-    static void authenticate() {
-        executeAndExpect(api.ping(), 201);
-        token = executeAndExpect(api.createToken(
+    static void serviceIsUp() {
+        executeAndExpect(ApiClients.restfulBooker().ping(), 201);
+    }
+
+    /**
+     * A fresh token per test: the public instance resets all data every few minutes,
+     * which also invalidates tokens issued before the reset.
+     */
+    private String createToken() {
+        return executeAndExpect(api.createToken(
                 new AuthRequest(Config.bookerUsername(), Config.bookerPassword())), 200).token();
     }
 
@@ -44,7 +54,7 @@ class RestfulBookerApiTest {
         @Test
         @DisplayName("valid credentials return a token")
         void validCredentials() {
-            assertThat(token).isNotBlank();
+            assertThat(createToken()).isNotBlank();
         }
 
         @Test
@@ -61,11 +71,13 @@ class RestfulBookerApiTest {
     @DisplayName("Booking CRUD")
     class Crud {
 
+        private String token;
         private Booking booking;
         private int bookingId;
 
         @BeforeEach
         void createBooking() {
+            token = createToken();
             booking = randomBooking();
             CreatedBooking created = executeAndExpect(api.createBooking(booking), 200);
             bookingId = created.bookingid();

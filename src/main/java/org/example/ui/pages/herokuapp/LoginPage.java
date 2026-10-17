@@ -1,8 +1,12 @@
 package org.example.ui.pages.herokuapp;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
+import org.example.config.Config;
 
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.SetValueOptions.withText;
 import static com.codeborne.selenide.Selenide.page;
 
 /**
@@ -15,16 +19,19 @@ public class LoginPage {
     private final SelenideElement submitButton = $("button[type='submit']");
     private final SelenideElement flashMessage = $("#flash");
 
+    @Step("Open the login page")
     public static LoginPage open() {
-        com.codeborne.selenide.Selenide.open("/login");
+        Selenide.open(Config.herokuappUrl() + "/login");
         return page(LoginPage.class);
     }
 
+    @Step("Log in as {username}")
     public SecureAreaPage loginAs(String username, String password) {
         submit(username, password);
         return page(SecureAreaPage.class);
     }
 
+    @Step("Try to log in as {username}")
     public LoginPage loginExpectingError(String username, String password) {
         submit(username, password);
         return this;
@@ -36,7 +43,7 @@ public class LoginPage {
 
     private void submit(String username, String password) {
         usernameInput.setValue(username);
-        passwordInput.setValue(password);
+        passwordInput.setValue(withText(password).sensitive());
         submitButton.click();
     }
 }

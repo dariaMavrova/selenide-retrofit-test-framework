@@ -7,7 +7,8 @@ import java.util.UUID;
 
 public final class AccountFactory {
 
-    private static final Faker FAKER = new Faker();
+    // One Faker per thread: tests run in parallel and Faker is not documented as thread-safe.
+    private static final ThreadLocal<Faker> FAKER = ThreadLocal.withInitial(Faker::new);
     private static final String[] COUNTRIES =
             {"India", "United States", "Canada", "Australia", "Israel", "New Zealand", "Singapore"};
 
@@ -16,26 +17,27 @@ public final class AccountFactory {
 
     /** A random account with a unique e-mail, so parallel runs never collide. */
     public static Account randomAccount() {
-        String firstName = FAKER.name().firstName();
-        String lastName = FAKER.name().lastName();
+        Faker faker = FAKER.get();
+        String firstName = faker.name().firstName();
+        String lastName = faker.name().lastName();
         String uniqueEmail = "aqa." + UUID.randomUUID().toString().substring(0, 12) + "@example.com";
         return new Account(
                 firstName + " " + lastName,
                 uniqueEmail,
-                FAKER.internet().password(10, 16, true, false, true),
-                FAKER.options().option("Mr", "Mrs"),
-                FAKER.number().numberBetween(1, 28),
-                FAKER.number().numberBetween(1, 12),
-                FAKER.number().numberBetween(1960, 2005),
+                faker.credentials().password(10, 16, true, false, true),
+                faker.options().option("Mr", "Mrs"),
+                faker.number().numberBetween(1, 28),
+                faker.number().numberBetween(1, 12),
+                faker.number().numberBetween(1960, 2005),
                 firstName,
                 lastName,
-                FAKER.company().name(),
-                FAKER.address().streetAddress(),
-                FAKER.address().secondaryAddress(),
-                FAKER.options().option(COUNTRIES),
-                FAKER.address().state(),
-                FAKER.address().city(),
-                FAKER.address().zipCode(),
-                FAKER.phoneNumber().cellPhone());
+                faker.company().name(),
+                faker.address().streetAddress(),
+                faker.address().secondaryAddress(),
+                faker.options().option(COUNTRIES),
+                faker.address().state(),
+                faker.address().city(),
+                faker.address().zipCode(),
+                faker.phoneNumber().cellPhone());
     }
 }

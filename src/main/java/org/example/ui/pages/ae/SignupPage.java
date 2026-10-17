@@ -1,9 +1,11 @@
 package org.example.ui.pages.ae;
 
+import io.qameta.allure.Step;
 import com.codeborne.selenide.SelenideElement;
 import org.example.api.ae.model.Account;
 
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.SetValueOptions.withText;
 import static com.codeborne.selenide.Selenide.page;
 
 /**
@@ -22,9 +24,10 @@ public class SignupPage {
         return email;
     }
 
+    @Step("Fill in account information and create the account")
     public AccountCreatedPage fillAndSubmit(Account account) {
         $(account.title().equals("Mr") ? "#id_gender1" : "#id_gender2").click();
-        $("[data-qa='password']").setValue(account.password());
+        $("[data-qa='password']").setValue(withText(account.password()).sensitive());
         $("[data-qa='days']").selectOptionByValue(String.valueOf(account.birthDay()));
         $("[data-qa='months']").selectOptionByValue(String.valueOf(account.birthMonth()));
         $("[data-qa='years']").selectOptionByValue(String.valueOf(account.birthYear()));

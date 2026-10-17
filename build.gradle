@@ -16,6 +16,18 @@ repositories {
     mavenCentral()
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // Keeps parameter names, so @Step("Log in as {email}") can show the argument.
+    options.compilerArgs << '-parameters'
+}
+
+configurations {
+    // Tools that are downloaded but never put on the classpath.
+    aspectjAgent
+    allureCli
+}
+
 dependencies {
     // Framework code (src/main): clients, page objects, config, models.
     implementation libs.selenide
@@ -25,22 +37,39 @@ dependencies {
     implementation libs.jackson.databind
     implementation libs.jackson.jsr310
     implementation libs.datafaker
+    implementation platform(libs.allure.bom)
+    implementation libs.allure.java.commons
+    implementation libs.allure.okhttp3
 
-    // Tests (src/test): JUnit is only needed to write and run tests.
+    // Tests (src/test).
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj
+    testImplementation libs.allure.junit5
+    testImplementation libs.allure.selenide
     testRuntimeOnly libs.junit.platform.launcher
 
     // Logging backend: needed at runtime only, never referenced from code.
     runtimeOnly libs.slf4j.simple
+
+    // Weaves @Step methods so they show up as steps in the Allure report.
+    aspectjAgent libs.aspectjweaver
+    allureCli variantOf(libs.allure.commandline) { artifactType('zip') }
 }
 
 // Shared settings for every Test task (test, apiTest, uiTest).
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
-    // Forward -Dapi.url=..., -Dselenide.headless=false etc. to the test JVM.
-    systemProperties System.properties.findAll { k, v -> k.toString() ==~ /(api|ui|selenide)\..+/ }
+    // These tests hit live systems: a cached or up-to-date result would say nothing about today.
+    outputs.upToDateWhen { false }
+    outputs.cacheIf { false }
+    // Forward -Dapi.booker.url=..., -Dselenide.headless=false, -Djunit.jupiter... to the test JVM.
+    systemProperties System.properties.findAll { k, v -> k.toString() ==~ /(api|ui|selenide|junit)\..+/ }
+    systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile.path
+
+    def agent = configurations.aspectjAgent
+    jvmArgumentProviders.add({ ["-javaagent:${agent.singleFile}".toString()] } as CommandLineArgumentProvider)
+
     testLogging {
         events 'passed', 'skipped', 'failed'
         exceptionFormat = 'full'
@@ -58,4 +87,35 @@ tasks.withType(Test).configureEach {
             includeTags tag
         }
     }
+}
+
+// ./gradlew allureReport  ->  build/reports/allure-report/index.html
+def unpackAllure = tasks.register('unpackAllure', Sync) {
+    from { zipTree(configurations.allureCli.singleFile) }
+    into layout.buildDirectory.dir('tools/allure')
+}
+
+tasks.register('allureReport', Exec) {
+    description = 'Builds the Allure HTML report from the results of the last test run.'
+    group = 'reporting'
+    dependsOn unpackAllure
+
+    def cliVersion = libs.versions.allureCli.get()
+    def script = System.getProperty('os.name').toLowerCase().contains('windows') ? 'allure.bat' : 'allure'
+    def cli = layout.buildDirectory.file("tools/allure/allure-${cliVersion}/bin/${script}").get().asFile
+    def results = layout.buildDirectory.dir('allure-results').get().asFile
+    def report = layout.buildDirectory.dir('reports/allure-report').get().asFile
+
+    def browser = System.getProperty('selenide.browser', 'chrome')
+    doFirst {
+        // Shown on the report's overview page.
+        results.mkdirs()
+        new File(results, 'environment.properties').text = [
+                "Browser=${browser}",
+                "Java=${System.getProperty('java.version')}",
+                "OS=${System.getProperty('os.name')}",
+        ].join('\n')
+    }
+
+    commandLine cli, 'generate', results, '--clean', '-o', report
 }

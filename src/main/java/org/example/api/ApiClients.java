@@ -2,7 +2,6 @@ package org.example.api;
 
 import org.example.api.ae.AutomationExerciseApi;
 import org.example.api.booker.RestfulBookerApi;
-import org.example.api.reqres.ReqresApi;
 import org.example.config.Config;
 
 import static org.example.api.RetrofitClient.header;
@@ -13,11 +12,6 @@ import static org.example.api.RetrofitClient.header;
 public final class ApiClients {
 
     private ApiClients() {
-    }
-
-    public static ReqresApi reqres() {
-        return RetrofitClient.create(Config.reqresUrl(), ReqresApi.class,
-                header("x-api-key", Config.reqresApiKey()));
     }
 
     public static RestfulBookerApi restfulBooker() {

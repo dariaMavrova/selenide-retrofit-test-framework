@@ -11,19 +11,21 @@ import java.time.LocalDate;
  */
 public final class BookingFactory {
 
-    private static final Faker FAKER = new Faker();
+    // One Faker per thread: tests run in parallel and Faker is not documented as thread-safe.
+    private static final ThreadLocal<Faker> FAKER = ThreadLocal.withInitial(Faker::new);
 
     private BookingFactory() {
     }
 
     public static Booking randomBooking() {
-        LocalDate checkin = LocalDate.now().plusDays(FAKER.number().numberBetween(1, 60));
+        Faker faker = FAKER.get();
+        LocalDate checkin = LocalDate.now().plusDays(faker.number().numberBetween(1, 60));
         return new Booking(
-                FAKER.name().firstName(),
-                FAKER.name().lastName(),
-                FAKER.number().numberBetween(50, 2000),
-                FAKER.bool().bool(),
-                new BookingDates(checkin, checkin.plusDays(FAKER.number().numberBetween(1, 14))),
-                FAKER.options().option("Breakfast", "Late checkout", "Airport transfer", "Parking"));
+                faker.name().firstName(),
+                faker.name().lastName(),
+                faker.number().numberBetween(50, 2000),
+                faker.bool().bool(),
+                new BookingDates(checkin, checkin.plusDays(faker.number().numberBetween(1, 14))),
+                faker.options().option("Breakfast", "Late checkout", "Airport transfer", "Parking"));
     }
 }
