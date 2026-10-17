@@ -1,5 +1,7 @@
 package org.example.ui.ae;
 
+import io.qameta.allure.Feature;
+import io.qameta.allure.Severity;
 import org.example.api.ApiClients;
 import org.example.api.ae.model.Product;
 import org.example.ui.pages.ae.CartPage;
@@ -15,12 +17,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.CollectionCondition.size;
-import static com.codeborne.selenide.Condition.disappear;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
+import static io.qameta.allure.SeverityLevel.CRITICAL;
 import static org.example.api.ApiCalls.executeAndExpect;
 
+@Feature("Cart")
 @DisplayName("AutomationExercise UI: cart")
 class CartUiTest extends AutomationExerciseUiTest {
 
@@ -33,6 +36,7 @@ class CartUiTest extends AutomationExerciseUiTest {
     }
 
     @Test
+    @Severity(CRITICAL)
     @DisplayName("Quantity chosen on the product page is used for the line total")
     void quantityAndTotal() {
         Product product = catalogue.get(1);
@@ -64,7 +68,6 @@ class CartUiTest extends AutomationExerciseUiTest {
         cart.row(second.id()).name().shouldHave(exactText(second.name()));
 
         cart.row(first.id()).remove();
-        cart.row(first.id()).root().should(disappear);
         cart.rows().shouldHave(size(1));
 
         cart.row(second.id()).remove();

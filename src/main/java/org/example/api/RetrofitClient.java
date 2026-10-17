@@ -4,19 +4,24 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import io.qameta.allure.okhttp3.AllureOkHttp3;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.time.Duration;
 
 /**
- * Builds Retrofit services. All services share one connection pool and logging setup;
- * each one can add its own interceptors (auth headers etc.).
+ * Builds Retrofit services. All services share one connection pool, JSON mapper and logging setup;
+ * each one can add its own interceptors (auth headers etc.). OkHttp clients and the mapper are thread-safe.
  */
 public final class RetrofitClient {
+
+    private static final Logger LOG = LoggerFactory.getLogger("org.example.api.http");
 
     public static final ObjectMapper MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -36,8 +41,9 @@ public final class RetrofitClient {
         for (Interceptor interceptor : interceptors) {
             client.addInterceptor(interceptor);
         }
-        // Logging goes last so it shows the headers added by the interceptors above.
-        client.addInterceptor(loggingInterceptor());
+        // Added last so they see the final request, including headers from the interceptors above.
+        client.addInterceptor(new AllureOkHttp3());
+        client.addInterceptor(consoleLogging());
 
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -51,11 +57,10 @@ public final class RetrofitClient {
         return chain -> chain.proceed(chain.request().newBuilder().header(name, value).build());
     }
 
-    private static HttpLoggingInterceptor loggingInterceptor() {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        logging.redactHeader("x-api-key");
-        logging.redactHeader("Cookie");
+    /** One line per request in the console; full bodies go to the Allure report. */
+    private static HttpLoggingInterceptor consoleLogging() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(LOG::info);
+        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
         return logging;
     }
 }

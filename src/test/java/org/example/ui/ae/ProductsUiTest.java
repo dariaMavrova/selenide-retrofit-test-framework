@@ -1,5 +1,6 @@
 package org.example.ui.ae;
 
+import io.qameta.allure.Feature;
 import org.example.api.ApiClients;
 import org.example.api.ae.AutomationExerciseApi;
 import org.example.api.ae.model.Product;
@@ -16,6 +17,7 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.text;
 import static org.example.api.ApiCalls.executeAndExpect;
 
+@Feature("Catalogue")
 @DisplayName("AutomationExercise UI: catalogue")
 class ProductsUiTest extends AutomationExerciseUiTest {
 

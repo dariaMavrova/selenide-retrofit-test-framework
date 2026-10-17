@@ -1,9 +1,12 @@
 package org.example.ui.pages.ae;
 
+import org.example.config.Config;
+import io.qameta.allure.Step;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.disappear;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.page;
@@ -13,10 +16,15 @@ import static com.codeborne.selenide.Selenide.page;
  */
 public class CartPage {
 
-    public final Header header = new Header();
+    private final Header header = new Header();
 
+    public Header header() {
+        return header;
+    }
+
+    @Step("Open the cart")
     public static CartPage open() {
-        Selenide.open("/view_cart");
+        Selenide.open(Config.aeUrl() + "/view_cart");
         return page(CartPage.class);
     }
 
@@ -50,8 +58,11 @@ public class CartPage {
             return root.$(".cart_total_price");
         }
 
+        /** Waits until the row is gone: the site removes it only after its AJAX call succeeds. */
+        @Step("Remove the product from the cart")
         public void remove() {
             root.$(".cart_quantity_delete").click();
+            root.should(disappear);
         }
     }
 }

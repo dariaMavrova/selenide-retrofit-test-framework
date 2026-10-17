@@ -1,5 +1,7 @@
 package org.example.ui.pages.ae;
 
+import org.example.config.Config;
+import io.qameta.allure.Step;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 
@@ -13,8 +15,9 @@ public class ProductDetailsPage {
 
     private static final String INFO = ".product-information";
 
+    @Step("Open details of product {productId}")
     public static ProductDetailsPage open(int productId) {
-        Selenide.open("/product_details/" + productId);
+        Selenide.open(Config.aeUrl() + "/product_details/" + productId);
         return page(ProductDetailsPage.class);
     }
 
@@ -30,6 +33,7 @@ public class ProductDetailsPage {
         return $(INFO + " span span");
     }
 
+    @Step("Add {quantity} item(s) to the cart")
     public AddedToCartModal addToCart(int quantity) {
         $("#quantity").setValue(String.valueOf(quantity));
         $(INFO + " button.cart").click();

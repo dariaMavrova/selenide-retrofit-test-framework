@@ -1,9 +1,12 @@
 package org.example.ui.pages.ae;
 
+import org.example.config.Config;
+import io.qameta.allure.Step;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.SetValueOptions.withText;
 import static com.codeborne.selenide.Selenide.page;
 
 /**
@@ -11,7 +14,11 @@ import static com.codeborne.selenide.Selenide.page;
  */
 public class LoginSignupPage {
 
-    public final Header header = new Header();
+    private final Header header = new Header();
+
+    public Header header() {
+        return header;
+    }
 
     private final SelenideElement loginEmail = $("[data-qa='login-email']");
     private final SelenideElement loginPassword = $("[data-qa='login-password']");
@@ -23,26 +30,31 @@ public class LoginSignupPage {
     private final SelenideElement signupButton = $("[data-qa='signup-button']");
     private final SelenideElement signupError = $("form[action='/signup'] p");
 
+    @Step("Open the Login / Signup page")
     public static LoginSignupPage open() {
-        Selenide.open("/login");
+        Selenide.open(Config.aeUrl() + "/login");
         return page(LoginSignupPage.class);
     }
 
+    @Step("Log in as {email}")
     public HomePage loginAs(String email, String password) {
         fillLogin(email, password);
         return page(HomePage.class);
     }
 
+    @Step("Try to log in as {email}")
     public LoginSignupPage loginExpectingError(String email, String password) {
         fillLogin(email, password);
         return this;
     }
 
+    @Step("Start sign-up for {name} <{email}>")
     public SignupPage startSignup(String name, String email) {
         fillSignup(name, email);
         return page(SignupPage.class);
     }
 
+    @Step("Try to sign up {name} <{email}>")
     public LoginSignupPage startSignupExpectingError(String name, String email) {
         fillSignup(name, email);
         return this;
@@ -58,7 +70,8 @@ public class LoginSignupPage {
 
     private void fillLogin(String email, String password) {
         loginEmail.setValue(email);
-        loginPassword.setValue(password);
+        // sensitive(): the password is masked in logs and in the Allure report.
+        loginPassword.setValue(withText(password).sensitive());
         loginButton.click();
     }
 
