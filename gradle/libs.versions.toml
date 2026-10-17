@@ -12,7 +12,7 @@ assertj = "3.27.7"
 datafaker = "2.7.0"
 allure = "2.35.5"
 allureCli = "2.46.1"
-aspectj = "1.9.25"
+aspectj = "1.9.25.1"
 slf4j = "2.0.20"
 
 [libraries]
