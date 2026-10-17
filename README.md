@@ -41,6 +41,8 @@ flowchart LR
 
 ## Engineering practices
 
+The full rules, with the reasoning behind each one and a PR review checklist, are in **[docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md)**.
+
 **Test design**
 - **UI and API in one test.** Preconditions are created through the API, which is fast and stable,
   the user flow runs in the browser, and the result is verified in the backend. For example,
