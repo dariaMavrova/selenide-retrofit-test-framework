@@ -223,6 +223,13 @@ with a timeout per job, least-privilege `permissions`, and the Allure report pub
 **10.4 A red nightly run gets investigated the same day.** 🟠
 It means either the application changed or a test is flaky. Both are worth knowing.
 
+**10.5 Minor and patch updates come in one grouped PR; each major update gets its own PR.** 🟠
+Grouping everything means one breaking major bump blocks all the safe updates. In this repo's first Dependabot PR,
+Allure 3 (which renamed `allure-junit5` to `allure-jupiter`) failed the build together with harmless Gradle and AspectJ bumps.
+Merge only on green CI. For a major update, read the release notes and migrate on purpose, or close it with a reason.
+Check that coupled libraries move together: OkHttp must stay on the version Retrofit is built against.
+Configured in `.github/dependabot.yml`.
+
 ## 11. Code style
 
 **11.1 Match the surrounding code**: naming, structure, comment density. 🟡
@@ -255,6 +262,7 @@ Copy into a PR review and tick what applies. The numbers point to the rules abov
 - [ ] New endpoints are in the Retrofit interface with typed models (4.1, 4.2)
 - [ ] Stable selectors; AJAX actions wait for their effect (5.4, 5.6)
 - [ ] Flakiness fixed at the source, no retries (7.2)
+- [ ] Dependency bump: majors in their own PR, coupled libraries move together, CI green (10.5)
 
 **🟡 Minor**
 - [ ] Parameterized instead of copy-paste; negative cases covered (1.4, 1.5)

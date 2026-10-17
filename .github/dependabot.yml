@@ -1,17 +1,22 @@
 version: 2
 updates:
+  # Minor and patch updates are grouped into one weekly PR: they should be safe, and CI proves it.
+  # Major updates are left out of the group, so each one gets its own PR: they can break the build
+  # (e.g. Allure 3 renamed allure-junit5) and must not block the safe updates.
   - package-ecosystem: gradle
     directory: /
     schedule:
       interval: weekly
     groups:
-      gradle-dependencies:
+      gradle-minor-and-patch:
         patterns: ['*']
+        update-types: [minor, patch]
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     groups:
-      github-actions:
+      actions-minor-and-patch:
         patterns: ['*']
+        update-types: [minor, patch]
