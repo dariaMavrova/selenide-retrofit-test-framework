@@ -90,7 +90,7 @@ The full rules, with the reasoning behind each one and a PR review checklist, ar
 | Test data | Datafaker |
 | Assertions | AssertJ, Selenide conditions |
 | Reporting | Allure 3 (Jupiter, Selenide, OkHttp integrations, AspectJ for `@Step`), secrets redacted |
-| CI | GitHub Actions, GitHub Pages, Dependabot |
+| CI | GitHub Actions, GitHub Pages, Dependabot; Jenkins (Docker, Configuration as Code, Selenium container) |
 
 ## Project structure
 
@@ -116,6 +116,33 @@ src
     │       └── herokuapp/
     └── resources                         # junit-platform.properties (parallelism), logging, Allure
 ```
+
+## CI
+
+The same pipeline runs in two CI systems:
+
+| | GitHub Actions | Jenkins |
+|---|---|---|
+| Definition | `.github/workflows/tests.yml` | `Jenkinsfile` |
+| Where | GitHub-hosted runners | your machine, in Docker (`jenkins/`) |
+| Triggers | push, pull request, nightly | SCM polling every 5 min, nightly |
+| Browser | Chrome on the runner | Chromium in a Selenium container (`-Dselenide.remote`) |
+| Report | Allure on GitHub Pages | Allure plugin on each build |
+
+### Local Jenkins
+
+The controller is fully defined in code: plugins are pinned in `jenkins/plugins.txt`, and the admin user,
+Allure tool and pipeline job are configured in `jenkins/casc.yaml` (Configuration as Code). There's no setup wizard and nothing to click.
+
+```bash
+cd jenkins
+cp .env.example .env            # set JENKINS_ADMIN_PASSWORD
+docker compose up -d --build    # Jenkins on http://localhost:8080, login: admin
+```
+
+Watch the UI tests in the browser container at http://localhost:7900 (noVNC, password `secret`).
+Both ports are bound to `127.0.0.1` only. Builds run on the controller itself, which is fine for a local
+single-user setup; a shared Jenkins should use separate agents.
 
 ## Running the tests
 
