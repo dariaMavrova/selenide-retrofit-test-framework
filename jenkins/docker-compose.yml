@@ -1,0 +1,30 @@
+# Local CI: Jenkins + a Chromium node for the UI tests.
+#   cd jenkins && cp .env.example .env   (then set a password)
+#   docker compose up -d --build        ->  http://localhost:8080  (user: admin)
+name: aqa-ci
+
+services:
+  jenkins:
+    build: .
+    ports:
+      - "127.0.0.1:8080:8080"   # localhost only: this Jenkins is not meant to be exposed
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:?set JENKINS_ADMIN_PASSWORD in jenkins/.env}
+      JENKINS_JOB_BRANCH: ${JENKINS_JOB_BRANCH:-main}   # branch the job builds
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    depends_on:
+      - selenium
+
+  selenium:
+    image: selenium/standalone-chromium:4.51.0-20261010
+    shm_size: 2gb                       # Chrome crashes with Docker's default 64 MB /dev/shm
+    environment:
+      SE_NODE_MAX_SESSIONS: 4           # matches the JUnit parallelism (junit-platform.properties)
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+      SE_NODE_SESSION_TIMEOUT: 120
+    ports:
+      - "127.0.0.1:7900:7900"           # noVNC: watch the browser at http://localhost:7900 (password: secret)
+
+volumes:
+  jenkins_home:

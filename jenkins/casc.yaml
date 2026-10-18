@@ -1,0 +1,55 @@
+# Jenkins Configuration as Code: the whole controller is defined here.
+jenkins:
+  systemMessage: "Selenide + Retrofit test framework: local CI (configured from jenkins/casc.yaml)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+tool:
+  allure:
+    installations:
+      - name: allure
+        properties:
+          - installSource:
+              installers:
+                - allureCommandlineInstaller:
+                    id: "2.46.1"
+
+jobs:
+  - script: |
+      pipelineJob('selenide-retrofit-tests') {
+        description('API and UI tests from https://github.com/dariaMavrova/selenide-retrofit-test-framework (Jenkinsfile).')
+        properties {
+          pipelineTriggers {
+            triggers {
+              // GitHub can't reach a laptop, so Jenkins checks for new commits itself.
+              pollSCM { scmpoll_spec('H/5 * * * *') }
+              // Nightly run, like GitHub Actions: catches changes in the sites under test.
+              cron { spec('H 5 * * *') }
+            }
+          }
+        }
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('https://github.com/dariaMavrova/selenide-retrofit-test-framework.git') }
+                branch('*/${JENKINS_JOB_BRANCH:-main}')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }
