@@ -20,11 +20,7 @@ tool:
   allure:
     installations:
       - name: allure
-        properties:
-          - installSource:
-              installers:
-                - allureCommandlineInstaller:
-                    id: "2.46.1"
+        home: /opt/allure   # baked into the image, see Dockerfile
 
 jobs:
   - script: |
