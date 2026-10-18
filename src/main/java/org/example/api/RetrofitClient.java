@@ -14,6 +14,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
 import java.time.Duration;
+import java.util.List;
 
 /**
  * Builds Retrofit services. All services share one connection pool, JSON mapper and logging setup;
@@ -42,7 +43,9 @@ public final class RetrofitClient {
             client.addInterceptor(interceptor);
         }
         // Added last so they see the final request, including headers from the interceptors above.
-        client.addInterceptor(new AllureOkHttp3());
+        client.addInterceptor(ReportRedaction.maskFormSecrets());
+        client.addInterceptor(allureAttachments());
+        client.addInterceptor(ReportRedaction.restoreFormSecrets());
         client.addInterceptor(consoleLogging());
 
         return new Retrofit.Builder()
@@ -55,6 +58,17 @@ public final class RetrofitClient {
 
     public static Interceptor header(String name, String value) {
         return chain -> chain.proceed(chain.request().newBuilder().header(name, value).build());
+    }
+
+    /**
+     * Records each request/response in the Allure report. The report is public (GitHub Pages),
+     * so credentials are redacted: auth headers and the Restful-booker token cookie here,
+     * passwords in form bodies by {@link ReportRedaction}.
+     */
+    private static AllureOkHttp3 allureAttachments() {
+        return new AllureOkHttp3().configureHttpExchange(exchange -> exchange
+                .redactHeaders(List.of("Authorization", "Cookie", "X-Api-Key"))
+                .redactCookie("token"));
     }
 
     /** One line per request in the console; full bodies go to the Allure report. */

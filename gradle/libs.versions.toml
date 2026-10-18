@@ -10,7 +10,7 @@ okhttp = "4.12.0"       # must match the OkHttp version Retrofit is built agains
 jackson = "2.22.3"
 assertj = "3.27.7"
 datafaker = "2.7.0"
-allure = "2.35.5"
+allure = "3.0.0"
 allureCli = "2.46.1"
 aspectj = "1.9.25.1"
 slf4j = "2.0.20"
@@ -23,7 +23,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 
 allure-bom = { module = "io.qameta.allure:allure-bom", version.ref = "allure" }
 allure-java-commons = { module = "io.qameta.allure:allure-java-commons" }
-allure-junit5 = { module = "io.qameta.allure:allure-junit5" }
+allure-jupiter = { module = "io.qameta.allure:allure-jupiter" }
 allure-selenide = { module = "io.qameta.allure:allure-selenide" }
 allure-okhttp3 = { module = "io.qameta.allure:allure-okhttp3" }
 allure-commandline = { module = "io.qameta.allure:allure-commandline", version.ref = "allureCli" }
