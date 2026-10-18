@@ -23,7 +23,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 
 allure-bom = { module = "io.qameta.allure:allure-bom", version.ref = "allure" }
 allure-java-commons = { module = "io.qameta.allure:allure-java-commons" }
-allure-junit5 = { module = "io.qameta.allure:allure-junit5" }
+allure-jupiter = { module = "io.qameta.allure:allure-jupiter" }
 allure-selenide = { module = "io.qameta.allure:allure-selenide" }
 allure-okhttp3 = { module = "io.qameta.allure:allure-okhttp3" }
 allure-commandline = { module = "io.qameta.allure:allure-commandline", version.ref = "allureCli" }

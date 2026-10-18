@@ -207,6 +207,9 @@ The defaults in this repo are public demo credentials only. Real credentials com
 
 **9.3 Logs and reports must not leak tokens or passwords.** 🔴
 Failure messages print method and URL only, the Selenide password fields are `sensitive()`, and the console HTTP log is at BASIC level.
+HTTP attachments in Allure redact auth headers and the token cookie (`RetrofitClient.allureAttachments`), and passwords in
+form bodies (`ReportRedaction`, a workaround for Allure 3.0 recording form bodies verbatim).
+Check: after adding a secret anywhere, run the suite and grep `build/allure-results/` for its value.
 
 ## 10. Build, dependencies and CI
 

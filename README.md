@@ -72,7 +72,8 @@ The full rules, with the reasoning behind each one and a PR review checklist, ar
 
 **Reporting and CI**
 - **Allure report** with Epic / Feature / Severity, steps from page objects (`@Step`) and Selenide actions,
-  full HTTP request/response attachments, and a screenshot plus page source on failure. Passwords are masked.
+  full HTTP request/response attachments, parameters of data-driven tests, and a screenshot plus page source on failure.
+  Passwords and tokens are redacted, since the report is public.
 - **GitHub Actions**: API and UI suites run as parallel jobs, their results are merged into one Allure report and
   published to GitHub Pages. Runs on push, on pull requests and nightly, the last of which catches changes in the apps under test.
 - **Dependabot** keeps libraries and GitHub Actions up to date, with versions in one place (`gradle/libs.versions.toml`).
@@ -88,7 +89,7 @@ The full rules, with the reasoning behind each one and a PR review checklist, ar
 | API | Retrofit 3, OkHttp 4, Jackson |
 | Test data | Datafaker |
 | Assertions | AssertJ, Selenide conditions |
-| Reporting | Allure (JUnit 5, Selenide, OkHttp integrations, AspectJ for `@Step`) |
+| Reporting | Allure 3 (Jupiter, Selenide, OkHttp integrations, AspectJ for `@Step`), secrets redacted |
 | CI | GitHub Actions, GitHub Pages, Dependabot |
 
 ## Project structure

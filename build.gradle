@@ -45,7 +45,7 @@ dependencies {
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
     testImplementation libs.assertj
-    testImplementation libs.allure.junit5
+    testImplementation libs.allure.jupiter
     testImplementation libs.allure.selenide
     testRuntimeOnly libs.junit.platform.launcher
 
